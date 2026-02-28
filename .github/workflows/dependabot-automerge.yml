@@ -5,12 +5,11 @@ on:
     types: [opened, reopened, synchronize, ready_for_review, labeled]
 
 permissions:
-  contents: write
   pull-requests: write
 
 jobs:
   enable-automerge:
-    if: github.actor == 'dependabot[bot]'
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Enable auto-merge for safe Dependabot PRs
@@ -46,5 +45,9 @@ jobs:
               }
             `;
 
-            await github.graphql(mutation, { pullRequestId: pr.node_id });
-            core.info(`Auto-merge enabled for PR #${pr.number}`);
+            try {
+              await github.graphql(mutation, { pullRequestId: pr.node_id });
+              core.info(`Auto-merge enabled for PR #${pr.number}`);
+            } catch (error) {
+              core.warning(`Could not enable auto-merge for PR #${pr.number}: ${error.message}`);
+            }
