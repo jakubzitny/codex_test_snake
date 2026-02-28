@@ -38,6 +38,12 @@ const keyToDirection: Record<string, Direction> = {
   d: 'Right',
 }
 
+const snakeColorPalettes = {
+  yellow: { head: '#ffe066', body: '#ffd43b' },
+  green: { head: '#9bf6a0', body: '#5ac95f' },
+  blue: { head: '#8ed6ff', body: '#3fa9f5' },
+} as const
+
 function drawCell(
   context: CanvasRenderingContext2D,
   x: number,
@@ -89,6 +95,14 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
       <p class="game-over" data-testid="game-over">Game Over - Press Restart or R</p>
       <div class="controls">
         <p class="help">Use Arrow keys or WASD</p>
+        <label>
+          Snake color:
+          <select data-testid="snake-color-select">
+            <option value="yellow">Yellow</option>
+            <option value="green">Green</option>
+            <option value="blue">Blue</option>
+          </select>
+        </label>
         <button type="button" data-testid="toggle-walls-button">Toggle Walls</button>
         <button type="button" data-testid="restart-button">Restart</button>
       </div>
@@ -102,6 +116,9 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   const toggleWallsButton = root.querySelector('[data-testid="toggle-walls-button"]')
   const wallMode = root.querySelector('[data-testid="wall-mode"]')
   const enemyCount = root.querySelector('[data-testid="enemy-count"]')
+  const snakeColorSelect = root.querySelector(
+    '[data-testid="snake-color-select"]',
+  ) as HTMLSelectElement | null
 
   if (
     !scoreLabel ||
@@ -110,10 +127,13 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
     !restartButton ||
     !toggleWallsButton ||
     !wallMode ||
-    !enemyCount
+    !enemyCount ||
+    !snakeColorSelect
   ) {
     throw new Error('Could not initialize game UI.')
   }
+
+  let snakePalette = snakeColorPalettes[snakeColorSelect.value as keyof typeof snakeColorPalettes]
 
   board.width = width * cellSize
   board.height = height * cellSize
@@ -141,7 +161,13 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
       drawCell(context, enemy.x, enemy.y, cellSize, '#8c52ff')
     })
     state.snake.forEach((segment, index) => {
-      drawCell(context, segment.x, segment.y, cellSize, index === 0 ? '#ffe066' : '#ffd43b')
+      drawCell(
+        context,
+        segment.x,
+        segment.y,
+        cellSize,
+        index === 0 ? snakePalette.head : snakePalette.body,
+      )
     })
 
     scoreLabel.textContent = `Score: ${state.score}`
@@ -165,6 +191,11 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
     render()
   }
 
+  const setSnakeColor = (): void => {
+    snakePalette = snakeColorPalettes[snakeColorSelect.value as keyof typeof snakeColorPalettes]
+    render()
+  }
+
   const handleKeydown = (event: KeyboardEvent): void => {
     const direction = keyToDirection[event.key]
 
@@ -181,6 +212,7 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   }
 
   win.addEventListener('keydown', handleKeydown)
+  snakeColorSelect.addEventListener('change', setSnakeColor)
   toggleWallsButton.addEventListener('click', toggleWalls)
   restartButton.addEventListener('click', restart)
 
@@ -194,6 +226,7 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
     dispose: () => {
       win.clearInterval(timer)
       win.removeEventListener('keydown', handleKeydown)
+      snakeColorSelect.removeEventListener('change', setSnakeColor)
       toggleWallsButton.removeEventListener('click', toggleWalls)
       restartButton.removeEventListener('click', restart)
     },

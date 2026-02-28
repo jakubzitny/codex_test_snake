@@ -5,14 +5,19 @@ type MockContext = {
   strokeStyle: string
   fillRect: jest.Mock
   strokeRect: jest.Mock
+  drawColors: string[]
 }
 
 function mockCanvasContext(): MockContext {
+  const drawColors: string[] = []
   const context = {
     fillStyle: '#000',
     strokeStyle: '#000',
-    fillRect: jest.fn(),
+    fillRect: jest.fn(() => {
+      drawColors.push(context.fillStyle)
+    }),
     strokeRect: jest.fn(),
+    drawColors,
   }
 
   jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => {
@@ -116,6 +121,26 @@ describe('createGameApp', () => {
 
     toggleButton.click()
     expect(wallMode?.textContent).toBe('Walls: Solid')
+
+    app.dispose()
+  })
+
+  it('changes snake color from UI control', () => {
+    const context = mockCanvasContext()
+    const root = document.querySelector('#app') as HTMLElement
+    const app = createGameApp(root, { width: 8, height: 8, tickMs: 999, enemyCount: 0 })
+    const snakeColorSelect = root.querySelector(
+      '[data-testid="snake-color-select"]',
+    ) as HTMLSelectElement
+
+    expect(snakeColorSelect.value).toBe('yellow')
+    expect(context.drawColors).toContain('#ffd43b')
+
+    context.drawColors.length = 0
+    snakeColorSelect.value = 'green'
+    snakeColorSelect.dispatchEvent(new Event('change'))
+
+    expect(context.drawColors).toContain('#5ac95f')
 
     app.dispose()
   })
