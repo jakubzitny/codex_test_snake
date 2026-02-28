@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('renders and can restart after game over', async ({ page }) => {
-  await page.goto('/?width=5&height=5&tick=30&seed=1')
+  await page.goto('?width=5&height=5&tick=30&seed=1')
 
   await expect(page.getByRole('heading', { name: 'Classic Snake' })).toBeVisible()
   await expect(page.getByTestId('score')).toHaveText('Score: 0')
