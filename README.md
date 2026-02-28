@@ -7,6 +7,11 @@
 
 TypeScript monorepo containing a classic Snake game frontend and a shared game engine.
 
+## Automation policy
+
+- Dependabot PRs can auto-merge after required checks pass.
+- PRs that touch `.github/workflows/*` are intentionally excluded from auto-merge and stay manual.
+
 ## Stack
 
 - pnpm workspaces
