@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["vite/client", "jest"],
+    "lib": ["ES2022", "DOM"],
+    "paths": {
+      "@snake/core": ["../../packages/snake-core/src/index.ts"]
+    }
+  },
+  "include": ["src", "tests"]
+}
