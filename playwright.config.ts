@@ -9,7 +9,7 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'pnpm --filter @snake/web dev --host 127.0.0.1 --port 4173',
+    command: 'corepack pnpm --filter @snake/web dev --host 127.0.0.1 --port 4173',
     port: 4173,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
