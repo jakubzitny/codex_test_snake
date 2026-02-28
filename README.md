@@ -8,6 +8,8 @@
 
 TypeScript monorepo containing a classic Snake game frontend and a shared game engine.
 
+🌐 Live app: https://jakubzitny.github.io/codex_test_snake/
+
 ## Automation policy
 
 - Dependabot PRs can auto-merge after required checks pass.
