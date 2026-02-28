@@ -1,4 +1,4 @@
-.PHONY: install dev build build-pages lint format format-check test test-unit test-e2e check
+.PHONY: install dev build build-pages lint format format-check test test-unit test-e2e test-e2e-ui check
 
 install:
 	pnpm install
@@ -29,6 +29,9 @@ test-unit:
 
 test-e2e:
 	pnpm test:e2e
+
+test-e2e-ui:
+	pnpm test:e2e:ui
 
 check:
 	pnpm check

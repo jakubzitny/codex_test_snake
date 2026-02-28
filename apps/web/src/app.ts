@@ -112,7 +112,7 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
 
     drawCell(context, state.food.x, state.food.y, cellSize, '#ff4d5a')
     state.snake.forEach((segment, index) => {
-      drawCell(context, segment.x, segment.y, cellSize, index === 0 ? '#ff9f1a' : '#ff7a00')
+      drawCell(context, segment.x, segment.y, cellSize, index === 0 ? '#ffe066' : '#ffd43b')
     })
 
     scoreLabel.textContent = `Score: ${state.score}`

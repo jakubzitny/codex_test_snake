@@ -34,6 +34,7 @@ make format
 make format-check
 make test-unit
 make test-e2e
+make test-e2e-ui
 make build
 make check
 ```
@@ -61,7 +62,17 @@ git branch -M main
 git push -u origin main
 ```
 
-4. Enable GitHub Pages from Actions:
-- Repo Settings -> Pages -> Build and deployment -> Source: `GitHub Actions`
+4. Enable GitHub Pages from branch:
+- Repo Settings -> Pages -> Build and deployment -> Source: `Deploy from a branch`
+- Branch: `gh-pages` and folder: `/(root)`
+
+5. Allow workflows to push to `gh-pages`:
+- Repo Settings -> Actions -> General -> Workflow permissions -> `Read and write permissions`
 
 After pushing to `main` (or `master`), `.github/workflows/pages.yml` deploys the built app.
+
+## PR Review App (GitHub Pages)
+
+- Workflow: `.github/workflows/pages-preview.yml`
+- Preview URL format: `https://<user>.github.io/<repo>/pr-preview/pr-<number>/`
+- A sticky PR comment is posted automatically with the preview link and updated on each push.
