@@ -34,7 +34,7 @@ describe('createGameApp', () => {
   it('initializes UI and allows restarting after game over', () => {
     mockCanvasContext()
     const root = document.querySelector('#app') as HTMLElement
-    const app = createGameApp(root, { width: 4, height: 4, tickMs: 1, seed: 5 })
+    const app = createGameApp(root, { width: 4, height: 4, tickMs: 1, seed: 5, enemyCount: 0 })
 
     const score = root.querySelector('[data-testid="score"]')
     const gameOver = root.querySelector('[data-testid="game-over"]')
@@ -68,6 +68,27 @@ describe('createGameApp', () => {
     app.tick()
 
     expect(app.engine.getState().direction).toBe('Up')
+
+    app.dispose()
+  })
+
+  it('shows wrap mode and enemy count in the header', () => {
+    mockCanvasContext()
+    const root = document.querySelector('#app') as HTMLElement
+    const app = createGameApp(root, {
+      width: 8,
+      height: 8,
+      tickMs: 999,
+      wrapWalls: true,
+      enemyCount: 2,
+      initialEnemies: [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+      ],
+    })
+
+    expect(root.querySelector('[data-testid="wall-mode"]')?.textContent).toBe('Walls: Wrap')
+    expect(root.querySelector('[data-testid="enemy-count"]')?.textContent).toBe('Enemies: 2')
 
     app.dispose()
   })

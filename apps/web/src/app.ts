@@ -8,6 +8,9 @@ export type AppOptions = {
   seed?: number
   rng?: () => number
   doc?: Document
+  wrapWalls?: boolean
+  enemyCount?: number
+  initialEnemies?: { x: number; y: number }[]
 }
 
 export type AppController = {
@@ -61,13 +64,21 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   const rng =
     options.rng ?? (options.seed !== undefined ? createSeededRng(options.seed) : Math.random)
 
-  const engine = new SnakeEngine({ width, height }, rng)
+  const engine = new SnakeEngine({
+    width,
+    height,
+    wrapWalls: options.wrapWalls,
+    enemyCount: options.enemyCount,
+    initialEnemies: options.initialEnemies,
+  }, rng)
 
   root.innerHTML = `
     <section class="game-shell">
       <header class="game-header">
         <h1 class="game-title">Classic Snake</h1>
         <div class="score" data-testid="score">Score: 0</div>
+        <div class="mode" data-testid="wall-mode"></div>
+        <div class="mode" data-testid="enemy-count"></div>
       </header>
       <div class="game-board">
         <canvas data-testid="board"></canvas>
@@ -84,8 +95,10 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   const board = root.querySelector('[data-testid="board"]') as HTMLCanvasElement | null
   const gameOver = root.querySelector('[data-testid="game-over"]')
   const restartButton = root.querySelector('[data-testid="restart-button"]')
+  const wallMode = root.querySelector('[data-testid="wall-mode"]')
+  const enemyCount = root.querySelector('[data-testid="enemy-count"]')
 
-  if (!scoreLabel || !board || !gameOver || !restartButton) {
+  if (!scoreLabel || !board || !gameOver || !restartButton || !wallMode || !enemyCount) {
     throw new Error('Could not initialize game UI.')
   }
 
@@ -111,11 +124,16 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
     }
 
     drawCell(context, state.food.x, state.food.y, cellSize, '#ff4d5a')
+    state.enemies.forEach((enemy) => {
+      drawCell(context, enemy.x, enemy.y, cellSize, '#8c52ff')
+    })
     state.snake.forEach((segment, index) => {
       drawCell(context, segment.x, segment.y, cellSize, index === 0 ? '#ffe066' : '#ffd43b')
     })
 
     scoreLabel.textContent = `Score: ${state.score}`
+    wallMode.textContent = `Walls: ${options.wrapWalls ? 'Wrap' : 'Solid'}`
+    enemyCount.textContent = `Enemies: ${state.enemies.length}`
     gameOver.classList.toggle('visible', state.gameOver)
   }
 
