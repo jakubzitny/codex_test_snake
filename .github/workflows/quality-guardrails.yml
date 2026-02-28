@@ -1,0 +1,56 @@
+name: Quality Guardrails
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+  workflow_run:
+    workflows: [Deploy Pages]
+    types: [completed]
+
+jobs:
+  bundle-size:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web app
+        run: pnpm build:pages
+
+      - name: Check bundle size budget
+        env:
+          BUNDLE_MAX_BYTES: '250000'
+        run: pnpm check:bundle
+
+  lighthouse-pages:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Lighthouse CI against deployed Pages
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            https://jakubzitny.github.io/codex_test_snake/
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          runs: 1

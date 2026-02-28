@@ -4,6 +4,7 @@
 [![CI (main)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml?query=branch%3Amain)
 [![Pages Deploy](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages.yml)
 [![Pages Smoke](https://github.com/jakubzitny/codex_test_snake/actions/workflows/playwright-pages.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/playwright-pages.yml)
+[![Quality Guardrails](https://github.com/jakubzitny/codex_test_snake/actions/workflows/quality-guardrails.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/quality-guardrails.yml)
 
 TypeScript monorepo containing a classic Snake game frontend and a shared game engine.
 
@@ -21,6 +22,11 @@ TypeScript monorepo containing a classic Snake game frontend and a shared game e
 - Jest (unit tests)
 - Playwright (end-to-end tests)
 - GitHub Actions (CI + Pages deploy)
+
+## Quality Guardrails
+
+- Bundle-size budget check on CI (`BUNDLE_MAX_BYTES=250000` for largest JS asset)
+- Lighthouse smoke against deployed GitHub Pages URL on non-PR workflow runs
 
 ## Monorepo Layout
 
