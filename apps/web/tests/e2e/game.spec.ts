@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('renders with URL params and can restart after game over', async ({ page }) => {
-  await page.goto('?width=5&height=5&tick=120&seed=1')
+  await page.goto('?width=5&height=5&tick=120&seed=1&enemies=0')
 
   await expect(page.getByRole('heading', { name: 'Classic Snake' })).toBeVisible()
   await expect(page.getByTestId('score')).toHaveText('Score: 0')
@@ -20,7 +20,7 @@ test('renders with URL params and can restart after game over', async ({ page })
 })
 
 test('supports keyboard restart with R key', async ({ page }) => {
-  await page.goto('?width=5&height=5&tick=120&seed=1')
+  await page.goto('?width=5&height=5&tick=120&seed=1&enemies=0')
 
   await page.keyboard.press('ArrowUp')
   await expect(page.getByTestId('game-over')).toHaveClass(/visible/, { timeout: 5_000 })
@@ -31,7 +31,7 @@ test('supports keyboard restart with R key', async ({ page }) => {
 })
 
 test('handles repeated restart cycles without breaking UI state', async ({ page }) => {
-  await page.goto('?width=5&height=5&tick=120&seed=1')
+  await page.goto('?width=5&height=5&tick=120&seed=1&enemies=0')
 
   const gameOver = page.getByTestId('game-over')
   const restart = page.getByTestId('restart-button')
@@ -44,4 +44,32 @@ test('handles repeated restart cycles without breaking UI state', async ({ page 
   }
 
   await expect(page.getByTestId('score')).toHaveText('Score: 0')
+})
+
+test('wrap mode allows crossing walls without game over', async ({ page }) => {
+  await page.goto('?width=5&height=5&tick=70&seed=1&enemies=0&wrap=1')
+
+  await expect(page.getByTestId('wall-mode')).toHaveText('Walls: Wrap')
+  await page.waitForTimeout(1500)
+  await expect(page.getByTestId('game-over')).not.toHaveClass(/visible/)
+})
+
+test('enemy collision ends the game', async ({ page }) => {
+  await page.goto('?width=5&height=5&tick=120&enemies=0&enemyPositions=3,2')
+
+  await expect(page.getByTestId('enemy-count')).toHaveText('Enemies: 1')
+  await expect(page.getByTestId('game-over')).toHaveClass(/visible/, { timeout: 2_000 })
+})
+
+test('can toggle walls mode from UI', async ({ page }) => {
+  await page.goto('?width=5&height=5&tick=120&seed=1&enemies=0&wrap=0')
+
+  const wallMode = page.getByTestId('wall-mode')
+  const toggleButton = page.getByTestId('toggle-walls-button')
+
+  await expect(wallMode).toHaveText('Walls: Solid')
+  await toggleButton.click()
+  await expect(wallMode).toHaveText('Walls: Wrap')
+  await toggleButton.click()
+  await expect(wallMode).toHaveText('Walls: Solid')
 })

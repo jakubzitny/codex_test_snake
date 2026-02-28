@@ -11,6 +11,9 @@ export type GameConfig = {
   initialDirection?: Direction
   initialSnake?: Position[]
   initialFood?: Position
+  wrapWalls?: boolean
+  enemyCount?: number
+  initialEnemies?: Position[]
 }
 
 export type GameState = {
@@ -18,6 +21,7 @@ export type GameState = {
   direction: Direction
   nextDirection: Direction
   food: Position
+  enemies: Position[]
   score: number
   gameOver: boolean
 }
@@ -25,6 +29,7 @@ export type GameState = {
 const DEFAULT_WIDTH = 20
 const DEFAULT_HEIGHT = 20
 const DEFAULT_DIRECTION: Direction = 'Right'
+const DEFAULT_ENEMY_COUNT = 3
 
 const directionVectors: Record<Direction, Position> = {
   Up: { x: 0, y: -1 },
@@ -52,6 +57,10 @@ function positionInSnake(position: Position, snake: Position[]): boolean {
   return snake.some((segment) => positionsEqual(segment, position))
 }
 
+function positionInPositions(position: Position, positions: Position[]): boolean {
+  return positions.some((item) => positionsEqual(item, position))
+}
+
 function randomInt(maxExclusive: number, rng: () => number): number {
   return Math.floor(rng() * maxExclusive)
 }
@@ -61,17 +70,34 @@ function createInitialSnake(width: number, height: number): Position[] {
   return [head, { x: head.x - 1, y: head.y }, { x: head.x - 2, y: head.y }]
 }
 
-function spawnFood(width: number, height: number, snake: Position[], rng: () => number): Position {
+function getAvailableCells(
+  width: number,
+  height: number,
+  snake: Position[],
+  excluded: Position[] = [],
+): Position[] {
   const availableCells: Position[] = []
 
   for (let x = 0; x < width; x += 1) {
     for (let y = 0; y < height; y += 1) {
       const candidate = { x, y }
-      if (!positionInSnake(candidate, snake)) {
+      if (!positionInSnake(candidate, snake) && !positionInPositions(candidate, excluded)) {
         availableCells.push(candidate)
       }
     }
   }
+
+  return availableCells
+}
+
+function spawnFood(
+  width: number,
+  height: number,
+  snake: Position[],
+  enemies: Position[],
+  rng: () => number,
+): Position {
+  const availableCells = getAvailableCells(width, height, snake, enemies)
 
   if (availableCells.length === 0) {
     return { x: -1, y: -1 }
@@ -80,11 +106,32 @@ function spawnFood(width: number, height: number, snake: Position[], rng: () => 
   return availableCells[randomInt(availableCells.length, rng)]
 }
 
+function spawnEnemies(
+  width: number,
+  height: number,
+  snake: Position[],
+  food: Position,
+  enemyCount: number,
+  rng: () => number,
+): Position[] {
+  const enemies: Position[] = []
+  const availableCells = getAvailableCells(width, height, snake, [food])
+
+  while (enemies.length < enemyCount && availableCells.length > 0) {
+    const index = randomInt(availableCells.length, rng)
+    const [chosen] = availableCells.splice(index, 1)
+    enemies.push(chosen)
+  }
+
+  return enemies
+}
+
 function cloneState(state: GameState): GameState {
   return {
     ...state,
     snake: state.snake.map(clonePosition),
     food: clonePosition(state.food),
+    enemies: state.enemies.map(clonePosition),
   }
 }
 
@@ -95,6 +142,9 @@ export class SnakeEngine {
   private readonly initialDirection: Direction
   private readonly initialSnake?: Position[]
   private readonly initialFood?: Position
+  private wrapWalls: boolean
+  private readonly enemyCount: number
+  private readonly initialEnemies?: Position[]
   private state: GameState
 
   constructor(config: Partial<GameConfig> = {}, rng: () => number = Math.random) {
@@ -104,11 +154,22 @@ export class SnakeEngine {
     this.initialDirection = config.initialDirection ?? DEFAULT_DIRECTION
     this.initialSnake = config.initialSnake?.map(clonePosition)
     this.initialFood = config.initialFood ? clonePosition(config.initialFood) : undefined
+    this.wrapWalls = config.wrapWalls ?? false
+    this.enemyCount = Math.max(0, config.enemyCount ?? DEFAULT_ENEMY_COUNT)
+    this.initialEnemies = config.initialEnemies?.map(clonePosition)
     this.state = this.createInitialState()
   }
 
   getState(): GameState {
     return cloneState(this.state)
+  }
+
+  setWrapWalls(enabled: boolean): void {
+    this.wrapWalls = enabled
+  }
+
+  getWrapWalls(): boolean {
+    return this.wrapWalls
   }
 
   setDirection(direction: Direction): void {
@@ -138,10 +199,19 @@ export class SnakeEngine {
       y: this.state.snake[0].y + vector.y,
     }
 
+    if (this.wrapWalls) {
+      nextHead.x = (nextHead.x + this.width) % this.width
+      nextHead.y = (nextHead.y + this.height) % this.height
+    }
+
     const outsideBoard =
       nextHead.x < 0 || nextHead.x >= this.width || nextHead.y < 0 || nextHead.y >= this.height
 
-    if (outsideBoard || positionInSnake(nextHead, this.state.snake)) {
+    if (
+      outsideBoard ||
+      positionInSnake(nextHead, this.state.snake) ||
+      positionInPositions(nextHead, this.state.enemies)
+    ) {
       this.state.gameOver = true
       return this.getState()
     }
@@ -157,7 +227,13 @@ export class SnakeEngine {
 
     if (ateFood) {
       this.state.score += 1
-      this.state.food = spawnFood(this.width, this.height, this.state.snake, this.rng)
+      this.state.food = spawnFood(
+        this.width,
+        this.height,
+        this.state.snake,
+        this.state.enemies,
+        this.rng,
+      )
 
       if (this.state.food.x === -1) {
         this.state.gameOver = true
@@ -176,12 +252,20 @@ export class SnakeEngine {
     const snake = this.initialSnake
       ? this.initialSnake.map(clonePosition)
       : createInitialSnake(this.width, this.height)
+    const enemies = this.initialEnemies
+      ? this.initialEnemies.filter((enemy) => !positionInSnake(enemy, snake)).map(clonePosition)
+      : []
     const food = this.initialFood
       ? clonePosition(this.initialFood)
-      : spawnFood(this.width, this.height, snake, this.rng)
+      : spawnFood(this.width, this.height, snake, enemies, this.rng)
+
+    if (!this.initialEnemies) {
+      enemies.push(...spawnEnemies(this.width, this.height, snake, food, this.enemyCount, this.rng))
+    }
 
     return {
       snake,
+      enemies,
       direction: this.initialDirection,
       nextDirection: this.initialDirection,
       food,

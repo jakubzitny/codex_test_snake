@@ -8,6 +8,7 @@ describe('SnakeEngine', () => {
     expect(state.score).toBe(0)
     expect(state.gameOver).toBe(false)
     expect(state.snake).toHaveLength(3)
+    expect(state.enemies).toHaveLength(3)
     expect(state.snake[0]).toEqual({ x: 5, y: 5 })
   })
 
@@ -32,6 +33,7 @@ describe('SnakeEngine', () => {
     const engine = new SnakeEngine({
       width: 6,
       height: 6,
+      enemyCount: 0,
       initialSnake: [
         { x: 2, y: 2 },
         { x: 1, y: 2 },
@@ -48,20 +50,85 @@ describe('SnakeEngine', () => {
     expect(state.snake[0]).toEqual({ x: 3, y: 2 })
   })
 
-  it('ends game on wall collision', () => {
+  it('ends game on wall collision when wrap is disabled', () => {
     const engine = new SnakeEngine({
       width: 4,
       height: 4,
+      enemyCount: 0,
       initialSnake: [
         { x: 3, y: 1 },
         { x: 2, y: 1 },
         { x: 1, y: 1 },
       ],
       initialDirection: 'Right',
+      wrapWalls: false,
     })
 
     const state = engine.tick()
 
     expect(state.gameOver).toBe(true)
+  })
+
+  it('wraps across walls when wrap is enabled', () => {
+    const engine = new SnakeEngine({
+      width: 4,
+      height: 4,
+      enemyCount: 0,
+      initialSnake: [
+        { x: 3, y: 1 },
+        { x: 2, y: 1 },
+        { x: 1, y: 1 },
+      ],
+      initialDirection: 'Right',
+      wrapWalls: true,
+    })
+
+    const state = engine.tick()
+
+    expect(state.gameOver).toBe(false)
+    expect(state.snake[0]).toEqual({ x: 0, y: 1 })
+  })
+
+  it('ends game when snake hits an enemy', () => {
+    const engine = new SnakeEngine({
+      width: 6,
+      height: 6,
+      enemyCount: 0,
+      initialSnake: [
+        { x: 2, y: 2 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 },
+      ],
+      initialDirection: 'Right',
+      initialEnemies: [{ x: 3, y: 2 }],
+    })
+
+    const state = engine.tick()
+
+    expect(state.gameOver).toBe(true)
+  })
+
+  it('can toggle wall wrapping at runtime', () => {
+    const engine = new SnakeEngine({
+      width: 4,
+      height: 4,
+      enemyCount: 0,
+      initialSnake: [
+        { x: 3, y: 1 },
+        { x: 2, y: 1 },
+        { x: 1, y: 1 },
+      ],
+      initialDirection: 'Right',
+      wrapWalls: false,
+    })
+
+    expect(engine.getWrapWalls()).toBe(false)
+
+    engine.setWrapWalls(true)
+    expect(engine.getWrapWalls()).toBe(true)
+
+    const state = engine.tick()
+    expect(state.gameOver).toBe(false)
+    expect(state.snake[0]).toEqual({ x: 0, y: 1 })
   })
 })
