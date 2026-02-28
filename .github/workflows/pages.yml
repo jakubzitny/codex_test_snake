@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: pages-production
@@ -49,3 +50,8 @@ jobs:
           clean: true
           clean-exclude: pr-preview/
           force: false
+
+      - name: Trigger GitHub Pages build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST repos/${{ github.repository }}/pages/builds
