@@ -16,6 +16,19 @@ function parsePositiveIntParam(value: string | null, fallback: number): number {
   return parsed
 }
 
+function parseNonNegativeIntParam(value: string | null, fallback: number): number {
+  if (!value) {
+    return fallback
+  }
+
+  const parsed = Number.parseInt(value, 10)
+  if (Number.isNaN(parsed) || parsed < 0) {
+    return fallback
+  }
+
+  return parsed
+}
+
 function parseBooleanParam(value: string | null, fallback: boolean): boolean {
   if (!value) {
     return fallback
@@ -68,7 +81,7 @@ const params = new URLSearchParams(window.location.search)
 const width = parsePositiveIntParam(params.get('width'), 20)
 const height = parsePositiveIntParam(params.get('height'), 20)
 const tickMs = parsePositiveIntParam(params.get('tick'), 120)
-const enemyCount = parsePositiveIntParam(params.get('enemies'), 3)
+const enemyCount = parseNonNegativeIntParam(params.get('enemies'), 3)
 const wrapWalls = parseBooleanParam(params.get('wrap'), false)
 const initialEnemies = parseEnemiesParam(params.get('enemyPositions'))
 

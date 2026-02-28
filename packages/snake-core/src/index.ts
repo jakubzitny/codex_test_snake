@@ -252,12 +252,14 @@ export class SnakeEngine {
     const snake = this.initialSnake
       ? this.initialSnake.map(clonePosition)
       : createInitialSnake(this.width, this.height)
+    const explicitFood = this.initialFood ? clonePosition(this.initialFood) : undefined
     const enemies = this.initialEnemies
-      ? this.initialEnemies.filter((enemy) => !positionInSnake(enemy, snake)).map(clonePosition)
+      ? this.initialEnemies
+          .filter((enemy) => !positionInSnake(enemy, snake))
+          .filter((enemy) => !explicitFood || !positionsEqual(enemy, explicitFood))
+          .map(clonePosition)
       : []
-    const food = this.initialFood
-      ? clonePosition(this.initialFood)
-      : spawnFood(this.width, this.height, snake, enemies, this.rng)
+    const food = explicitFood ?? spawnFood(this.width, this.height, snake, enemies, this.rng)
 
     if (!this.initialEnemies) {
       enemies.push(...spawnEnemies(this.width, this.height, snake, food, this.enemyCount, this.rng))
