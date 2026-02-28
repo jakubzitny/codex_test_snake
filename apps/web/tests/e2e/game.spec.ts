@@ -1,4 +1,30 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
+async function getBoardCellColor(page: Page, x: number, y: number): Promise<string> {
+  return page.evaluate(([cellX, cellY]) => {
+    const board = document.querySelector('[data-testid="board"]') as HTMLCanvasElement | null
+
+    if (!board) {
+      throw new Error('Board canvas not found.')
+    }
+
+    const context = board.getContext('2d')
+
+    if (!context) {
+      throw new Error('2D canvas context not available.')
+    }
+
+    const params = new URLSearchParams(window.location.search)
+    const width = Number(params.get('width') ?? '20')
+    const height = Number(params.get('height') ?? '20')
+    const cellWidth = board.width / width
+    const cellHeight = board.height / height
+    const pixelX = Math.floor(cellX * cellWidth + cellWidth / 2)
+    const pixelY = Math.floor(cellY * cellHeight + cellHeight / 2)
+    const [red, green, blue] = context.getImageData(pixelX, pixelY, 1, 1).data
+    return `${red},${green},${blue}`
+  }, [x, y] as const)
+}
 
 test('renders with URL params and can restart after game over', async ({ page }) => {
   await page.goto('?width=5&height=5&tick=120&seed=1&enemies=0')
@@ -72,4 +98,25 @@ test('can toggle walls mode from UI', async ({ page }) => {
   await expect(wallMode).toHaveText('Walls: Wrap')
   await toggleButton.click()
   await expect(wallMode).toHaveText('Walls: Solid')
+})
+
+test('can change snake color from UI', async ({ page }) => {
+  await page.goto('?width=5&height=5&tick=120&seed=1&enemies=0')
+
+  const snakeColorSelect = page.getByTestId('snake-color-select')
+
+  await expect(snakeColorSelect).toHaveValue('yellow')
+  await expect
+    .poll(async () => getBoardCellColor(page, 1, 2))
+    .toBe('255,212,59')
+
+  await snakeColorSelect.selectOption('green')
+  await expect
+    .poll(async () => getBoardCellColor(page, 1, 2))
+    .toBe('90,201,95')
+
+  await snakeColorSelect.selectOption('blue')
+  await expect
+    .poll(async () => getBoardCellColor(page, 1, 2))
+    .toBe('63,169,245')
 })
