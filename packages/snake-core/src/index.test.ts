@@ -107,4 +107,28 @@ describe('SnakeEngine', () => {
 
     expect(state.gameOver).toBe(true)
   })
+
+  it('can toggle wall wrapping at runtime', () => {
+    const engine = new SnakeEngine({
+      width: 4,
+      height: 4,
+      enemyCount: 0,
+      initialSnake: [
+        { x: 3, y: 1 },
+        { x: 2, y: 1 },
+        { x: 1, y: 1 },
+      ],
+      initialDirection: 'Right',
+      wrapWalls: false,
+    })
+
+    expect(engine.getWrapWalls()).toBe(false)
+
+    engine.setWrapWalls(true)
+    expect(engine.getWrapWalls()).toBe(true)
+
+    const state = engine.tick()
+    expect(state.gameOver).toBe(false)
+    expect(state.snake[0]).toEqual({ x: 0, y: 1 })
+  })
 })

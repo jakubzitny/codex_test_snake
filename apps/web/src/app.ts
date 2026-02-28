@@ -89,6 +89,7 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
       <p class="game-over" data-testid="game-over">Game Over - Press Restart or R</p>
       <div class="controls">
         <p class="help">Use Arrow keys or WASD</p>
+        <button type="button" data-testid="toggle-walls-button">Toggle Walls</button>
         <button type="button" data-testid="restart-button">Restart</button>
       </div>
     </section>
@@ -98,10 +99,19 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   const board = root.querySelector('[data-testid="board"]') as HTMLCanvasElement | null
   const gameOver = root.querySelector('[data-testid="game-over"]')
   const restartButton = root.querySelector('[data-testid="restart-button"]')
+  const toggleWallsButton = root.querySelector('[data-testid="toggle-walls-button"]')
   const wallMode = root.querySelector('[data-testid="wall-mode"]')
   const enemyCount = root.querySelector('[data-testid="enemy-count"]')
 
-  if (!scoreLabel || !board || !gameOver || !restartButton || !wallMode || !enemyCount) {
+  if (
+    !scoreLabel ||
+    !board ||
+    !gameOver ||
+    !restartButton ||
+    !toggleWallsButton ||
+    !wallMode ||
+    !enemyCount
+  ) {
     throw new Error('Could not initialize game UI.')
   }
 
@@ -135,7 +145,7 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
     })
 
     scoreLabel.textContent = `Score: ${state.score}`
-    wallMode.textContent = `Walls: ${options.wrapWalls ? 'Wrap' : 'Solid'}`
+    wallMode.textContent = `Walls: ${engine.getWrapWalls() ? 'Wrap' : 'Solid'}`
     enemyCount.textContent = `Enemies: ${state.enemies.length}`
     gameOver.classList.toggle('visible', state.gameOver)
   }
@@ -147,6 +157,11 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
 
   const restart = (): void => {
     engine.reset()
+    render()
+  }
+
+  const toggleWalls = (): void => {
+    engine.setWrapWalls(!engine.getWrapWalls())
     render()
   }
 
@@ -166,6 +181,7 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   }
 
   win.addEventListener('keydown', handleKeydown)
+  toggleWallsButton.addEventListener('click', toggleWalls)
   restartButton.addEventListener('click', restart)
 
   const timer = win.setInterval(tick, tickMs)
@@ -178,6 +194,7 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
     dispose: () => {
       win.clearInterval(timer)
       win.removeEventListener('keydown', handleKeydown)
+      toggleWallsButton.removeEventListener('click', toggleWalls)
       restartButton.removeEventListener('click', restart)
     },
   }

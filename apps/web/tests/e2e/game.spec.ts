@@ -60,3 +60,16 @@ test('enemy collision ends the game', async ({ page }) => {
   await expect(page.getByTestId('enemy-count')).toHaveText('Enemies: 1')
   await expect(page.getByTestId('game-over')).toHaveClass(/visible/, { timeout: 2_000 })
 })
+
+test('can toggle walls mode from UI', async ({ page }) => {
+  await page.goto('?width=5&height=5&tick=120&seed=1&enemies=0&wrap=0')
+
+  const wallMode = page.getByTestId('wall-mode')
+  const toggleButton = page.getByTestId('toggle-walls-button')
+
+  await expect(wallMode).toHaveText('Walls: Solid')
+  await toggleButton.click()
+  await expect(wallMode).toHaveText('Walls: Wrap')
+  await toggleButton.click()
+  await expect(wallMode).toHaveText('Walls: Solid')
+})
