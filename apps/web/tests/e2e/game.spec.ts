@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('renders with URL params and can restart after game over', async ({ page }) => {
-  await page.goto('?width=5&height=5&tick=30&seed=1')
+  await page.goto('?width=5&height=5&tick=120&seed=1')
 
   await expect(page.getByRole('heading', { name: 'Classic Snake' })).toBeVisible()
   await expect(page.getByTestId('score')).toHaveText('Score: 0')
@@ -20,7 +20,7 @@ test('renders with URL params and can restart after game over', async ({ page })
 })
 
 test('supports keyboard restart with R key', async ({ page }) => {
-  await page.goto('?width=5&height=5&tick=30&seed=1')
+  await page.goto('?width=5&height=5&tick=120&seed=1')
 
   await page.keyboard.press('ArrowUp')
   await expect(page.getByTestId('game-over')).toHaveClass(/visible/, { timeout: 5_000 })
@@ -31,7 +31,7 @@ test('supports keyboard restart with R key', async ({ page }) => {
 })
 
 test('handles repeated restart cycles without breaking UI state', async ({ page }) => {
-  await page.goto('?width=5&height=5&tick=30&seed=1')
+  await page.goto('?width=5&height=5&tick=120&seed=1')
 
   const gameOver = page.getByTestId('game-over')
   const restart = page.getByTestId('restart-button')
