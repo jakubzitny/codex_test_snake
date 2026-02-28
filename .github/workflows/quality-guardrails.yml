@@ -3,15 +3,19 @@ name: Quality Guardrails
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
+  workflow_run:
+    workflows: [Deploy Pages]
+    types: [completed]
 
 jobs:
   bundle-size:
+    if: github.event_name != 'workflow_run'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -32,15 +36,15 @@ jobs:
 
       - name: Check bundle size budget
         env:
-          BUNDLE_MAX_BYTES: "250000"
-        run: node scripts/check-bundle-size.mjs
+          BUNDLE_MAX_BYTES: '250000'
+        run: pnpm check:bundle
 
   lighthouse-pages:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Lighthouse CI against deployed Pages
         uses: treosh/lighthouse-ci-action@v12
