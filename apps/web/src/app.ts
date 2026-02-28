@@ -199,7 +199,9 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   const handleKeydown = (event: KeyboardEvent): void => {
     if (
       event.target instanceof win.Element &&
-      event.target.closest('input, select, textarea, [contenteditable=""], [contenteditable="true"]')
+      event.target.closest(
+        'input, select, textarea, [contenteditable=""], [contenteditable="true"]',
+      )
     ) {
       return
     }
