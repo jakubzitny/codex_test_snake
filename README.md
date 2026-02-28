@@ -2,10 +2,8 @@
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-2ea44f?logo=githubpages)](https://jakubzitny.github.io/codex_test_snake/)
 [![CI (main)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml?query=branch%3Amain)
-[![CI (PRs)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml/badge.svg?event=pull_request)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml?query=event%3Apull_request)
 [![Pages Deploy](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages.yml)
 [![Pages Smoke](https://github.com/jakubzitny/codex_test_snake/actions/workflows/playwright-pages.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/playwright-pages.yml)
-[![PR Preview Deploy](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages-preview.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages-preview.yml)
 
 TypeScript monorepo containing a classic Snake game frontend and a shared game engine.
 
