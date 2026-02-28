@@ -144,4 +144,25 @@ describe('createGameApp', () => {
 
     app.dispose()
   })
+
+  it('does not hijack arrow keys when focus is inside color select', () => {
+    mockCanvasContext()
+    const root = document.querySelector('#app') as HTMLElement
+    const app = createGameApp(root, { width: 8, height: 8, tickMs: 999, enemyCount: 0 })
+    const snakeColorSelect = root.querySelector(
+      '[data-testid="snake-color-select"]',
+    ) as HTMLSelectElement
+
+    const keyEvent = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      bubbles: true,
+      cancelable: true,
+    })
+
+    snakeColorSelect.dispatchEvent(keyEvent)
+
+    expect(keyEvent.defaultPrevented).toBe(false)
+
+    app.dispose()
+  })
 })
