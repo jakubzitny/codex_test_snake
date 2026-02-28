@@ -1,5 +1,10 @@
 # Classic Snake Monorepo
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-2ea44f?logo=githubpages)](https://jakubzitny.github.io/codex_test_snake/)
+[![CI](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/ci.yml)
+[![Pages Deploy](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages.yml)
+[![PR Preview Deploy](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages-preview.yml/badge.svg)](https://github.com/jakubzitny/codex_test_snake/actions/workflows/pages-preview.yml)
+
 TypeScript monorepo containing a classic Snake game frontend and a shared game engine.
 
 ## Stack
