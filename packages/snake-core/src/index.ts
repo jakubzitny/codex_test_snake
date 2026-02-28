@@ -142,7 +142,7 @@ export class SnakeEngine {
   private readonly initialDirection: Direction
   private readonly initialSnake?: Position[]
   private readonly initialFood?: Position
-  private readonly wrapWalls: boolean
+  private wrapWalls: boolean
   private readonly enemyCount: number
   private readonly initialEnemies?: Position[]
   private state: GameState
@@ -162,6 +162,14 @@ export class SnakeEngine {
 
   getState(): GameState {
     return cloneState(this.state)
+  }
+
+  setWrapWalls(enabled: boolean): void {
+    this.wrapWalls = enabled
+  }
+
+  getWrapWalls(): boolean {
+    return this.wrapWalls
   }
 
   setDirection(direction: Direction): void {

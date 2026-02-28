@@ -92,4 +92,31 @@ describe('createGameApp', () => {
 
     app.dispose()
   })
+
+  it('toggles wall mode from UI control', () => {
+    mockCanvasContext()
+    const root = document.querySelector('#app') as HTMLElement
+    const app = createGameApp(root, {
+      width: 8,
+      height: 8,
+      tickMs: 999,
+      wrapWalls: false,
+      enemyCount: 0,
+    })
+
+    const wallMode = root.querySelector('[data-testid="wall-mode"]')
+    const toggleButton = root.querySelector(
+      '[data-testid="toggle-walls-button"]',
+    ) as HTMLButtonElement
+
+    expect(wallMode?.textContent).toBe('Walls: Solid')
+
+    toggleButton.click()
+    expect(wallMode?.textContent).toBe('Walls: Wrap')
+
+    toggleButton.click()
+    expect(wallMode?.textContent).toBe('Walls: Solid')
+
+    app.dispose()
+  })
 })
