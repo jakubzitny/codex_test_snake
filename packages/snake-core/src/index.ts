@@ -219,7 +219,13 @@ export class SnakeEngine {
 
     if (ateFood) {
       this.state.score += 1
-      this.state.food = spawnFood(this.width, this.height, this.state.snake, this.state.enemies, this.rng)
+      this.state.food = spawnFood(
+        this.width,
+        this.height,
+        this.state.snake,
+        this.state.enemies,
+        this.rng,
+      )
 
       if (this.state.food.x === -1) {
         this.state.gameOver = true
@@ -239,9 +245,7 @@ export class SnakeEngine {
       ? this.initialSnake.map(clonePosition)
       : createInitialSnake(this.width, this.height)
     const enemies = this.initialEnemies
-      ? this.initialEnemies
-          .filter((enemy) => !positionInSnake(enemy, snake))
-          .map(clonePosition)
+      ? this.initialEnemies.filter((enemy) => !positionInSnake(enemy, snake)).map(clonePosition)
       : []
     const food = this.initialFood
       ? clonePosition(this.initialFood)

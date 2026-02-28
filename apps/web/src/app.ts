@@ -64,13 +64,16 @@ export function createGameApp(root: HTMLElement, options: AppOptions = {}): AppC
   const rng =
     options.rng ?? (options.seed !== undefined ? createSeededRng(options.seed) : Math.random)
 
-  const engine = new SnakeEngine({
-    width,
-    height,
-    wrapWalls: options.wrapWalls,
-    enemyCount: options.enemyCount,
-    initialEnemies: options.initialEnemies,
-  }, rng)
+  const engine = new SnakeEngine(
+    {
+      width,
+      height,
+      wrapWalls: options.wrapWalls,
+      enemyCount: options.enemyCount,
+      initialEnemies: options.initialEnemies,
+    },
+    rng,
+  )
 
   root.innerHTML = `
     <section class="game-shell">
