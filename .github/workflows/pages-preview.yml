@@ -52,4 +52,4 @@ jobs:
           source-dir: ./apps/web/dist
           preview-branch: gh-pages
           umbrella-dir: pr-preview
-          wait-for-pages-deployment: true
+          wait-for-pages-deployment: false
