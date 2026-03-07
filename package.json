@@ -19,7 +19,7 @@
     "check": "pnpm lint && pnpm format:check && pnpm test:unit && pnpm build"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
+    "@biomejs/biome": "^2.4.6",
     "@playwright/test": "^1.52.0",
     "@types/jest": "^30.0.0",
     "jest": "^30.2.0",
